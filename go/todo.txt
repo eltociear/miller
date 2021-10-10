@@ -23,7 +23,7 @@ TOP OF LIST:
 * mlr -k
 * regtest pendings
 
-*  doc6
+* doc6
 * check issues
 
 * meta: nf,nr,keys?

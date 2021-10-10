@@ -80,6 +80,7 @@ func (reader *RecordReaderCSV) processHandle(
 	needHeader := !reader.readerOptions.UseImplicitCSVHeader
 	var header []string = nil
 	var rowNumber int = 0
+	firstRecord := true // Not the same as rowNumber == 1 since headerful/headerless
 
 	csvReader := csv.NewReader(handle)
 	csvReader.Comma = rune(reader.readerOptions.IFS[0]) // xxx temp
@@ -101,10 +102,14 @@ func (reader *RecordReaderCSV) processHandle(
 			break
 		}
 
+		fmt.Println("AA0")
 		if needHeader {
 			// TODO: make this a helper function
+		fmt.Println("AA1")
 			csvRecord, err := csvReader.Read()
+		fmt.Println("AA2")
 			if lib.IsEOF(err) {
+		fmt.Println("AA3")
 				break
 			}
 			if err != nil && csvRecord == nil {
@@ -125,8 +130,11 @@ func (reader *RecordReaderCSV) processHandle(
 			needHeader = false
 		}
 
+		fmt.Println("AA4")
 		csvRecord, err := csvReader.Read()
+		fmt.Println("AA5")
 		if lib.IsEOF(err) {
+		fmt.Println("AA6")
 			break
 		}
 		if err != nil && csvRecord == nil {
@@ -155,6 +163,23 @@ func (reader *RecordReaderCSV) processHandle(
 		nh := len(header)
 		nd := len(csvRecord)
 
+		for k, h := range(header) {
+			fmt.Printf("%d <<%s>>\n", k, h)
+		}
+		for l, d := range(csvRecord) {
+			fmt.Printf("%d <<%s>>\n", l, d)
+		}
+
+		// Strip CSV BOM
+		if firstRecord {
+//			if nh >= 1 {
+//				if strings.HasPrefix(header[0], CSV_BOM) {
+//					header[0] = strings.Replace(header[0], CSV_BOM, "", 1)
+//				}
+//			}
+//			firstRecord = false
+		}
+
 		if nh == nd {
 			for i := 0; i < nh; i++ {
 				key := header[i]
@@ -162,38 +187,38 @@ func (reader *RecordReaderCSV) processHandle(
 				record.PutReference(key, value)
 			}
 
-		} else {
-			if !reader.readerOptions.AllowRaggedCSVInput {
-				err := errors.New(
-					fmt.Sprintf(
-						"mlr: CSV header/data length mismatch %d != %d "+
-							"at filename %s row %d.\n",
-						nh, nd, filename, rowNumber,
-					),
-				)
-				errorChannel <- err
-				return
-			} else {
-				i := 0
-				n := lib.IntMin2(nh, nd)
-				for i = 0; i < n; i++ {
-					key := header[i]
-					value := types.MlrvalPointerFromInferredTypeForDataFiles(csvRecord[i])
-					record.PutReference(key, value)
-				}
-				if nh < nd {
-					// if header shorter than data: use 1-up itoa keys
-					key := strconv.Itoa(i + 1)
-					value := types.MlrvalPointerFromInferredTypeForDataFiles(csvRecord[i])
-					record.PutCopy(key, value)
-				}
-				if nh > nd {
-					// if header longer than data: use "" values
-					for i = nd; i < nh; i++ {
-						record.PutCopy(header[i], &reader.emptyStringMlrval)
-					}
+		} else if reader.readerOptions.AllowRaggedCSVInput {
+			i := 0
+			n := lib.IntMin2(nh, nd)
+			for i = 0; i < n; i++ {
+				key := header[i]
+				value := types.MlrvalPointerFromInferredTypeForDataFiles(csvRecord[i])
+				record.PutReference(key, value)
+			}
+			if nh < nd {
+				// if header shorter than data: use 1-up itoa keys
+				key := strconv.Itoa(i + 1)
+				value := types.MlrvalPointerFromInferredTypeForDataFiles(csvRecord[i])
+				record.PutCopy(key, value)
+			}
+			if nh > nd {
+				// if header longer than data: use "" values
+				for i = nd; i < nh; i++ {
+					record.PutCopy(header[i], &reader.emptyStringMlrval)
 				}
 			}
+
+		} else {
+			err := errors.New(
+				fmt.Sprintf(
+					"mlr: CSV header/data length mismatch %d != %d "+
+						"at filename %s row %d.\n",
+					nh, nd, filename, rowNumber,
+				),
+			)
+			errorChannel <- err
+			return
+
 		}
 
 		context.UpdateForInputRecord()

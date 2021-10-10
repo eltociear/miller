@@ -156,10 +156,16 @@ func (reader *RecordReaderCSVLite) processHandleExplicitCSVHeader(
 			break
 		}
 
-		// xxx temp need IRS
 		line := scanner.Text()
 
 		inputLineNumber++
+
+		// Strip CSV BOM
+		if inputLineNumber == 1 {
+			if strings.HasPrefix(line, CSV_BOM) {
+				line = strings.Replace(line, CSV_BOM, "", 1)
+			}
+		}
 
 		// Check for comments-in-data feature
 		if strings.HasPrefix(line, reader.readerOptions.CommentString) {
@@ -179,9 +185,6 @@ func (reader *RecordReaderCSVLite) processHandleExplicitCSVHeader(
 		}
 
 		fields := lib.RegexSplitString(reader.readerOptions.IFSRegex, line, -1)
-		////fmt.Printf("<<%v>>\n", line)
-		////fmt.Printf("<<%v>>\n", reader.readerOptions.IFS)
-		////fields := lib.SplitString(line, lib.UnbackslashStringLiteral(reader.readerOptions.IFS))
 		if reader.readerOptions.AllowRepeatIFS {
 			fields = reader.stripEmpties(fields)
 		}
