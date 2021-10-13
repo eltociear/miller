@@ -6,6 +6,7 @@ TOP OF LIST:
 
 * CSV BOM
 * stats1 -r/--fr
+  o 'TODO: flags for interpolated percentiles' and '[TODO: more]' in stats1 olh
 * fmtnum
 * localtime
 * JSON comment-handling
@@ -16,10 +17,7 @@ TOP OF LIST:
 * r-strings/implicit-r/297: double-check end of reference-main-data-types.md.in
 
 * I/O redirects
-  o emit needs flatten ... why is this not happening?
-  o regtest/cases-pending-go-port/dsl-redirects/0078
   o flatten function OLH needs to say what the args are. unflatten too?
-  o cat out all out.* act/exp
 * mlr -k
 * regtest pendings
   o webdocs re /..../i regex options @ CLIP for windows
@@ -28,10 +26,16 @@ TOP OF LIST:
 * check issues
 
 * meta: nf,nr,keys?
+  o --c2info -- ?
 
 d pre-release:
   o explicit punchdown list
-  o draft release w/ m6 binaries YYYYMMDD -- ?
+    - regtest cases
+    - w/ regtest-cases clean: draft release w/ m6 binaries YYYYMMDD -- ?
+    - TODO-comment scan
+    - release notes (in addition to nim6.mi)
+    - docs6 notes
+    - equivalent of ./configure et al.
   o gha download steps clearer
 
 ----------------------------------------------------------------
@@ -48,10 +52,10 @@ kerl@joker-mbp.local[go]$ pv ~/tmp/zhuge.gz | mlr count -g a then sort -nr count
 ----------------------------------------------------------------
 META
 
-nr, nf, keys
-transpose ...
-
-also: -colname syntax ... -x colname maybe into more verbs ...
+* nr, nf, keys
+* transpose ...
+* also: -colname syntax ... -x colname maybe into more verbs ...
+  o stats1 -x -- ? maybe a --xg short for -x foo,bar -g foo,bar
 
 ----------------------------------------------------------------
 SEPARATORS ETC
@@ -62,10 +66,6 @@ SEPARATORS ETC
 
 ----------------------------------------------------------------
 REDIRECTS
-
-regtest/cases-pending-go-port/dsl-redirects/0008/cmd
-
-! no-remove-after option ...
 
 new-in-miller-6: missings:
 * dump syntax -- ?
@@ -87,26 +87,6 @@ mlr regtest regtest/cases-pending-go-port/io-utf8-alignment/0008
 bom
 mlr regtest regtest/cases-pending-go-port/io-utf8-bom/0001
 
-absents/void/err
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0006
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0007
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0010
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0011
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0012
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0013
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0014
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0023
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0024
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0027
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0028
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0039
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0040
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0041
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0042
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0043
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0045
-mlr regtest regtest/cases-pending-go-port/mix-null-field-input/0046
-
 fmtstr
 mlr regtest regtest/cases-pending-go-port/verb-format-values/0003
 mlr regtest regtest/cases-pending-go-port/verb-format-values/0004
@@ -124,9 +104,14 @@ mlr regtest regtest/cases-pending-go-port/verb-stats1-regexed-field-names/0002
 
 BLOCKERS
 
-* regtest:
-  o convert regtest/cases-pending-windows
-  o convert regtest/cases-pending-go-port
+* kw olh for func and funct both
+
+* hofs section on typedecls
+  o hofs+typedecls RT cases
+* glossary re natural ordering
+  o separate webdoc section ... somewhere ...
+  o hofs.md.in link
+  o numerics < bool < string
 
 * localtime functions
 
@@ -150,21 +135,8 @@ BLOCKERS
 
 * stats1: actualize -S and -F -- ?
 
-* more I/O:
-  ? golang encoding/csv ignores blank lines -- i need those for csvlite schema-change
-    detection -- needs an input-stream delegator -- ?
-
 ----------------------------------------------------------------
 DOC6
-
-* kw olh for func and funct both
-
-* hofs section on typedecls
-  o hofs+typedecls RT cases
-* glossary re natural ordering
-  o separate webdoc section ... somewhere ...
-  o hofs.md.in link
-  o numerics < bool < string
 
 ? special-symbols-and-formatting: How to escape '?' in regexes? -> still true? link to torbiak297?
 ? dates-and-times: Caveat: localtime-handling in timezones with DST is still a work in progress -- fixed by torbiak?
@@ -185,11 +157,8 @@ l Since uninitialized out-of-stream variables default to 0 for
   right-hand sides (not quite as in awk, where they'd default to 0 either way)
   <-> xlink to other page
 
-e fzf-ish w/ head -n 4, --from, up-arrow & append verb, then cat -- find & update the existing section
-! https://github.com/johnkerl/miller/issues/653 -- stats1 w/ empties? check stats2
+e fzf-ish w/ head -n 4, --from, up-arrow & append verb, then cat -- find & update the existing section! https://github.com/johnkerl/miller/issues/653 -- stats1 w/ empties? check stats2
   - needs UTs as well
-
-* while-read example from issues
 
 * single-line JSON for DKVP/CSV/etc ...
   o mlr --j2x --no-auto-flatten cat $mlg/regtest/input/flatten-input-2.json
